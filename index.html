@@ -1,139 +1,1464 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Städte & Reiseempfehlungen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e2a3a 0, #050812 55%, #020408 100%);
+      color: #f5f5f5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Hintergrund-Flieger */
+    .skyplanes {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .plane {
+      position: absolute;
+      font-size: 20px;
+      opacity: 0.12;
+      animation: plane-fly 16s linear infinite; /* schnell */
+      white-space: nowrap;
+    }
+
+    .plane:nth-child(1) {
+      top: 10%;
+    }
+    .plane:nth-child(2) {
+      top: 45%;
+      animation-delay: -1s;
+    }
+    .plane:nth-child(3) {
+      top: 75%;
+      animation-delay: -2s;
+    }
+
+    @keyframes plane-fly {
+      0% {
+        transform: translateX(-150vw);
+      }
+      100% {
+        transform: translateX(150vw);
+      }
+    }
+    /* Hauptinhalt */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      padding: 0 20px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* --- Weltkarte + Flaggenband --- */
+
+    .world-section {
+      margin-top: 18px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .world-label {
+      font-size: 0.8rem;
+      opacity: 0.75;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .world-map-img {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      display: block;
+      margin: 6px auto 10px;
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+    }
+
+    /* Flaggen-Marquee */
+    .flag-marquee {
+      position: relative;
+      overflow: hidden;
+      padding: 4px 0;
+      margin-bottom: 10px;
+    }
+
+    .flag-track {
+      display: inline-flex;
+      gap: 6px;
+      animation: flag-scroll 35s linear infinite;
+      will-change: transform;
+    }
+
+    .flag-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex: 0 0 auto;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+    }
+
+    @keyframes flag-scroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      padding: 12px 10px 6px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .subheading {
+      text-align: center;
+      margin-bottom: 10px;
+      opacity: 0.8;
+      font-size: 0.95rem;
+    }
+
+    /* Container für alle Jahres-Sektionen */
+    #octoContainer {
+      margin-top: 25px;
+    }
+
+    .year-section {
+      margin-bottom: 32px;
+    }
+
+    .year-heading {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 8px 0 10px;
+      opacity: 0.9;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      padding-bottom: 4px;
+    }
+
+    .octo-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 30px;
+      justify-items: center;
+    }
+
+    .destination {
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.25s ease, filter 0.25s ease;
+    }
+
+    .destination:hover {
+      transform: scale(1.08);
+      filter: grayscale(100%);
+    }
+
+    .destination-name {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.85;
+    }
+
+    /* Achteck (kleine Logos) */
+    .octagon-wrapper {
+      width: 120px;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      transition: transform 0.25s ease;
+    }
+
+    .octagon {
+      width: 100%;
+      height: 100%;
+      clip-path: polygon(
+        30% 0%,
+        70% 0%,
+        100% 30%,
+        100% 70%,
+        70% 100%,
+        30% 100%,
+        0% 70%,
+        0% 30%
+      );
+      overflow: hidden;
+      background: #111822;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Rahmen für das große Bild im Modal – normales Rechteck */
+    .modal-image-frame {
+      width: min(320px, 90vw);
+      aspect-ratio: 16 / 9;
+      max-width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #050812;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Bilder in kleinen Achtecken + im großen Modalbild */
+    .octagon img,
+    .modal-image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.25s ease;
+    }
+
+    .destination:hover .octagon img {
+      transform: scale(1.05);
+    }
+
+    /* Modal / Popup (Hauptreisen) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #101621;
+      border-radius: 18px;
+      padding: 20px 22px;
+      max-width: 900px;
+      width: 95%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
+      gap: 18px;
+      position: relative;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+    }
+
+    @media (max-width: 800px) {
+      .modal {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 4px 6px;
+      opacity: 0.7;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .modal-close:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .modal-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .slideshow-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .slide-btn {
+      border: none;
+      background: #1f2b3c;
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      opacity: 0.9;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .slide-btn:hover {
+      background: #2e3c54;
+      transform: translateY(-1px);
+    }
+
+    .slide-indicator {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .modal-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .modal-heading {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-top: -2px;
+    }
+
+    .modal-travel {
+      font-size: 0.88rem;
+      opacity: 0.9;
+    }
+
+    .modal-text {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      opacity: 0.9;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .modal-text::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-text::-webkit-scrollbar-thumb {
+      background: #222b3a;
+      border-radius: 999px;
+    }
+
+    /* Rating / Sterne */
+    .rating-wrapper {
+      margin-top: 10px;
+    }
+
+    .rating-label {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-bottom: 5px;
+    }
+
+    .stars {
+      display: inline-flex;
+      gap: 3px;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .star {
+      filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.7));
+      transition: transform 0.1s ease;
+    }
+
+    .star.filled {
+      color: #ffd35f;
+    }
+
+    .star:hover {
+      transform: scale(1.15) translateY(-1px);
+    }
+
+    .rating-output {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .hint {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.83rem;
+      opacity: 0.7;
+    }
+
+    /* Button "Weitere Pläne" */
+    .plans-button-wrapper {
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    .plans-button {
+      border: none;
+      padding: 9px 20px;
+      border-radius: 999px;
+      background: #1f2b3c;
+      color: #f5f5f5;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .plans-button:hover {
+      background: #2e3c54;
+      transform: translateY(-1px);
+    }
+
+    /* Modal für Weitere Pläne */
+    .plans-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 21;
+    }
+
+    .plans-backdrop.active {
+      display: flex;
+    }
+
+    .plans-modal {
+      background: #101621;
+      border-radius: 18px;
+      padding: 18px 20px 20px;
+      width: min(800px, 95vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+    }
+
+    .plans-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .plans-subtitle {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 18px;
+    }
+
+    .plan-card {
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .plan-name {
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.8rem;
+    }
+
+    .plan-status {
+      margin-top: 4px;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .plan-facts {
+      margin-top: 5px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+  </style>
 </head>
-<body id="start">
-    <div id="fächerFlex">
+<body>
+  <!-- Hintergrund-Flieger -->
+  <div class="skyplanes">
+    <div class="plane">✈︎ ✈︎ ✈︎</div>
+    <div class="plane">✈︎ ✈︎ ✈︎</div>
+    <div class="plane">✈︎ ✈︎ ✈︎</div>
+  </div>
 
-<h1 id="UeberschriftStartseite">julianlackner.at</h1>
+  <div class="page-wrapper">
 
-    <br><br><br><br><br>
-
-    <p id="Infotext"> Willkommen auf meiner Reiseseite, auf der ich einige meiner schönsten Reisefotos mit Ihnen teile!
-        Ich habe das Glück gehabt, einige schöne Orte und Städte auf der ganzen Welt zu besuchen und meine Erfahrungen in Bildern festzuhalten.</p>
-
-            <br><br><br><br><br>
-
-                <div class="fächerFlex2">
-                <div class="fächerListe" id="Prag">
-                    <br><a href="Unterseiten/Prag.html">Prag</a><br>
-                </div>
-                <div class="fächerListe" id="Wachau">
-                    <br><a href="Unterseiten/Wachau.html">Wachau</a><br>
-                </div>
-                <div class="fächerListe" id="Lyon">
-                    <br><a href="Unterseiten/Lyon.html">Lyon</a><br>
-                </div>
-                </div>
+    <!-- Weltkarte + Flaggenband -->
+    <div class="world-section">
 
 
-                <div class="fächerFlex2">
-                <div class="fächerListe" id="Madrid">
-                    <br><a href="Unterseiten/Madrid.html">Madrid</a><br>
-                </div>
-                <div class="fächerListe" id="LosAngeles">
-                    <br><a href="Unterseiten/Los Angeles.html">Los Angeles</a><br>
-                </div>
-                <div class="fächerListe" id="Barcelona">
-                    <br><a href="Unterseiten/Barcelona.html">Barcelona</a><br>
-                </div>
-                </div>
+      <!-- Weltkarte als Bild -->
+      <img
+        src="images/worldmap.png"
+        alt="Weltkarte"
+        class="world-map-img"
+      />
 
+      <div class="flag-marquee">
+        <div class="flag-track" id="flagTrack">
+          <!-- Flags per JS -->
+        </div>
+      </div>
+    </div>
 
+    <h1>My Travel Explorer</h1>
 
-            <div class="fächerFlex2">
-                <div class="fächerListe" id="London">
-                    <br><a href="Unterseiten/London.html">London</a><br>
-                </div>
-                <div class="fächerListe" id="Berlin">
-                    <br><a href="Unterseiten/Berlin.html">Berlin</a><br>
-                </div>
-                <div class="fächerListe" id="Kalifornien">
-                    <br><a href="Unterseiten/kalifornien.html">Kalifornien</a><br>
-                </div>
-                </div>
+    <!-- Container für Jahresabschnitte -->
+    <div id="octoContainer"></div>
 
+    <div class="skyplanes">
+      <div class="plane">✈︎ ✈︎ ✈︎</div>
+      <div class="plane">✈︎ ✈︎ ✈︎</div>
+      <div class="plane">✈︎ ✈︎ ✈︎</div>
+    </div>
 
+    <div class="plans-button-wrapper">
+      <button class="plans-button" id="openPlansBtn">Weitere Pläne</button>
+    </div>
+  </div>
 
-            <div class="fächerFlex2">
-                <div class="fächerListe" id="Warnemuende">
-                    <br><a href="Unterseiten/warnemuende.html">Warnemünde</a><br>
-                </div>
-                <div class="fächerListe" id="SanFrancisco">
-                    <br><a href="Unterseiten/San Francisco.html">San Francisco</a><br>
-                </div>
-                <div class="fächerListe" id="NewYork">
-                    <br><a href="Unterseiten/newyorkcity.html">New York City</a><br>
-                </div>
-                </div>
+  <!-- Modal / Popup (Hauptreisen) -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <div class="modal-left">
+        <div class="modal-image-frame">
+          <img id="modalSlideImage" src="" alt="Slideshow Bild" />
+        </div>
+        <div class="slideshow-controls">
+          <button class="slide-btn" id="prevSlide">&laquo; Zurück</button>
+          <button class="slide-btn" id="nextSlide">Weiter &raquo;</button>
+        </div>
+        <div class="slide-indicator" id="slideIndicator"></div>
+      </div>
+      <div class="modal-right">
+        <div class="modal-title" id="modalCityLabel">Destination</div>
+        <div class="modal-heading" id="modalCityName">Stadt</div>
+        <div class="modal-travel" id="modalTravelDates">Reisezeit(en): –</div>
+        <div class="modal-text" id="modalDescription">
+          Reiseempfehlungstext…
+        </div>
 
-                <div class="fächerFlex2">
-                    <div class="fächerListe" id="Lissabon">
-                        <br><a href="Unterseiten/lissabon.html">Lissabon</a><br>
-                    </div>
-                    <div class="fächerListe" id="Chiemsee">
-                        <br><a href="Unterseiten/chiemsee.html">Chiemsee</a><br>
-                    </div>
-                    <div class="fächerListe" id="athen">
-                        <br><a href="Unterseiten/athen.html">Athen</a><br>
-                    </div>
-                    </div>
+        <div class="rating-wrapper">
+          <div class="rating-label">Deine Reiseempfehlung (0–5 Sterne):</div>
+          <div class="stars" id="starContainer">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+          </div>
+          <div class="rating-output" id="ratingOutput">Noch keine Bewertung abgegeben.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                    <div class="fächerFlex2">
-                        <div class="fächerListe" id="Gastein">
-                            <br><a href="Unterseiten/Gastein.html">Gastein</a><br>
+  <!-- Modal für Weitere Pläne -->
+  <div class="plans-backdrop" id="plansBackdrop">
+    <div class="plans-modal">
+      <button class="modal-close" id="plansClose" aria-label="Close">&times;</button>
+      <h2 class="plans-title">Weitere Reisepläne</h2>
+      <p class="plans-subtitle">
+        Ein Blick in die Zukunft: fix gebuchte Trips, konkrete Planungen und Wunschprojekte.
+      </p>
+      <div class="plans-grid" id="plansGrid"></div>
+    </div>
+  </div>
 
-                        </div>
-                        <div class="fächerListe" id="Rostock">
-                            <br><a href="Unterseiten/rostock.html">Rostock</a><br>
-                        </div>
-                        <div class="fächerListe" id="Hamburg">
-                            <br><a href="Unterseiten/hamburg.html">Hamburg</a><br>
-                        </div>
-                        </div>
+  <script>
+    // -------------------------------------------------------------------
+    // Flaggen-Band
+    // -------------------------------------------------------------------
+    const flagFiles = [
+      "Flag_Belgien.jpg",
+      "Flag_Deutschland.jpg",
+      "Flag_Frankreich.jpg",
+      "Flag_Griechenland.jpg",
+      "Flag_Italien.jpg",
+      "Flag_Kroatien.jpg",
+      "Flag_Liechtenstein.jpg",
+      "Flag_Luxemburg.jpg",
+      "Flag_Niederlande.jpg",
+      "Flag_Österreich.jpg",
+      "Flag_Portugal.jpg",
+      "Flag_Schweden.jpg",
+      "Flag_Schweiz.jpg",
+      "Flag_Slowakei.jpg",
+      "Flag_Slowenien.jpg",
+      "Flag_Spanien.jpg",
+      "Flag_Tschechien.jpg",
+      "Flag_Türkei.jpg",
+      "Flag_UK.jpg",
+      "Flag_Ungarn.jpg",
+      "Flag_USA.jpg"
+    ];
 
-                        <div class="fächerFlex2">
-                            <div class="fächerListe" id="Phoenix">
-                                <br><a href="Unterseiten/phoenix.html">Phoenix</a><br>
+    const flagTrack = document.getElementById("flagTrack");
 
-                            </div>
-                            <div class="fächerListe" id="Arizona">
-                                <br><a href="Unterseiten/arizona.html">Arizona</a><br>
-                            </div>
-                            <div class="fächerListe" id="Utah">
-                                <br><a href="Unterseiten/utah.html">Utah</a><br>
-                            </div>
-                            </div>
+    function createFlagImg(file) {
+      const img = document.createElement("img");
+      img.className = "flag-icon";
+      img.src = "images/flags/" + file;
+      img.alt = file.replace("Flag_", "").replace(".jpg", "") + " Flagge";
+      return img;
+    }
 
-                            <div class="fächerFlex2">
-                                <div class="fächerListe" id="Sandiego">
-                                    <br><a href="Unterseiten/sandiego.html">San Diego</a><br>
+    // Liste zweimal einfügen, damit die Animation nahtlos wirkt
+    for (let i = 0; i < 2; i++) {
+      flagFiles.forEach(file => {
+        flagTrack.appendChild(createFlagImg(file));
+      });
+    }
 
-                                </div>
-                                <div class="fächerListe" id="Nevada">
-                                    <br><a href="Unterseiten/nevada.html">Nevada</a><br>
-                                </div>
-                                <div class="fächerListe" id="Lasvegas">
-                                    <br><a href="Unterseiten/lasvegas.html">Las Vegas</a><br>
-                                </div>
-                                </div>
+    // -------------------------------------------------------------------
+    // Restlicher Code: Logos, Modal, Slideshow etc.
+    // -------------------------------------------------------------------
 
-                                <div class="fächerFlex2">
-                                    <div class="fächerListe" id="Schwerin">
-                                        <br><a href="Unterseiten/schwerin.html">Schwerin</a><br>
+    const LOGO_BASE = "images/logos";
+    const SLIDE_BASE = "images/Slideshow";
 
-                                    </div>
-                                    <div class="fächerListe" id="Leer">
-                                        <br><a href="Unterseiten/utah.html"> </a><br>
-                                    </div>
-                                    <div class="fächerListe" id="Leer">
-                                        <br><a href="Unterseiten/utah.html"> </a><br>
-                                    </div>
-                                    </div>
+    // Bild-Endungen: zuerst PNG (Europa), dann JPG/JPEG (USA usw.)
+    const EXTENSIONS = [".png", ".PNG", ".jpg", ".jpeg", ".JPG", ".JPEG"];
+
+    // Hilfsfunktion: lädt ein Bild mit Fallbacks für verschiedene Endungen
+    function loadImageWithFallback(imgEl, basePath) {
+      imgEl.dataset.base = basePath;
+      imgEl.dataset.extIndex = 0;
+
+      const tryLoad = () => {
+        const idx = parseInt(imgEl.dataset.extIndex, 10);
+        if (idx >= EXTENSIONS.length) {
+          imgEl.onerror = null;
+          return;
+        }
+        imgEl.src = basePath + EXTENSIONS[idx];
+      };
+
+      imgEl.onerror = () => {
+        let idx = parseInt(imgEl.dataset.extIndex, 10);
+        idx++;
+        imgEl.dataset.extIndex = idx;
+        tryLoad();
+      };
+
+      tryLoad();
+    }
+
+    // Helper: latest date value (YYYYMM) für Sortierung
+    function getLatestDateValue(travelDates) {
+      if (!travelDates || !travelDates.length) return 0;
+      let max = 0;
+      travelDates.forEach(str => {
+        const parts = str.split("/");
+        if (parts.length !== 2) return;
+        let month = parseInt(parts[0], 10);
+        let year = parseInt(parts[1], 10);
+        if (year < 100) year += 2000;
+        const val = year * 100 + month;
+        if (!isNaN(val) && val > max) max = val;
+      });
+      return max;
+    }
+
+    function getYearFromDateStr(str) {
+      const parts = str.split("/");
+      if (parts.length !== 2) return null;
+      let year = parseInt(parts[1], 10);
+      if (year < 100) year += 2000;
+      return year;
+    }
+
+    // --- Daten-Konfiguration der bereits gereisten Ziele ---
+    const rawDestinations = [
+      // --- NAmerica / USA ---
+      {
+        id: "NYC",
+        name: "New York City",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_NYC",
+        slideBase: "NYC",
+        travelDates: ["04/2022", "09/2025"],
+        description:
+          "Die Stadt, die niemals schläft: Times Square, Central Park, Brooklyn Bridge und unzählige Rooftop-Bars. Perfekt für Großstadtflair, Kultur und Foodspots."
+      },
+      {
+        id: "Washington",
+        name: "Washington D.C.",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_Washington",
+        slideBase: "Washington",
+        travelDates: ["09/2025"],
+        description:
+          "Capitol, Lincoln Memorial und Smithsonian-Museen – Washington D.C. ist ideal für Geschichts- und Politikinteressierte, oft kombiniert mit Ausflügen nach Maryland."
+      },
+      {
+        id: "Phili",
+        name: "Philadelphia",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_Phili",
+        slideBase: "Phili",
+        travelDates: ["09/2025"],
+        description:
+          "Philadelphia verbindet Geschichte, Street Art und Food (Cheesesteaks!). Ideal als Zwischenstopp zwischen New York und Washington D.C."
+      },
+      {
+        id: "Maryland",
+        name: "Maryland",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_ML",
+        slideBase: "Maryland",
+        travelDates: ["09/2025"],
+        description:
+          "Maryland ergänzt Washington D.C. perfekt: Vororte, Wasser, kleine Orte am Potomac und Chesapeake Bay – ideal als Erweiterung eines Hauptstadt-Trips."
+      },
+      {
+        id: "Miami",
+        name: "Miami",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_Miami",
+        slideBase: "Miami",
+        travelDates: ["04/2024"],
+        description:
+          "Art-Deco, Beachlife und kubanisches Flair in Little Havana: Miami ist perfekt für Sonne, Strand und Nightlife. Ausflüge zu den Keys oder in die Everglades lohnen sich."
+      },
+      {
+        id: "LasVegas",
+        name: "Las Vegas",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_LasVegas",
+        slideBase: "LasVegas",
+        travelDates: ["05/2023"],
+        description:
+          "Casino-Lichter, Shows und Nachtleben: Las Vegas ist ein Erlebnis für sich. Ideal als Ausgangspunkt für Trips ins Valley of Fire, Red Rock Canyon oder zum Hoover Dam."
+      },
+      {
+        id: "AZ",
+        name: "Arizona",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_AZ",
+        slideBase: "AZ",
+        travelDates: ["05/2023"],
+        description:
+          "Grand Canyon, Sedona und Wüstenlandschaften – Arizona ist ein Highlight für Roadtrips und Wanderungen mit spektakulären Sonnenuntergängen."
+      },
+      {
+        id: "NV",
+        name: "Nevada",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_NV",
+        slideBase: "NV",
+        travelDates: ["05/2023"],
+        description:
+          "Weite Wüsten, kleine Orte und Sternenhimmel: Nevada ist mehr als nur der Strip in Las Vegas und perfekt für Offroad- und Campingfreunde."
+      },
+      {
+        id: "UT",
+        name: "Utah",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_UT",
+        slideBase: "UT",
+        travelDates: ["05/2023"],
+        description:
+          "Zion, Bryce Canyon, Arches & Canyonlands – Utah ist ein Paradies für Nationalpark-Fans und bietet ikonische rote Felsformationen."
+      },
+      {
+        id: "PHX",
+        name: "Phoenix",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_PHX",
+        slideBase: "PHX",
+        travelDates: ["05/2023"],
+        description:
+          "Phoenix in der Sonora-Wüste: idealer Ausgangspunkt für Roadtrips durch Arizona, Golf-Resorts und sonnige Winterfluchten."
+      },
+      {
+        id: "SanDiego",
+        name: "San Diego",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_SanDiego",
+        slideBase: "SanDiego",
+        travelDates: ["05/2023"],
+        description:
+          "San Diego bietet entspannten Surf-Vibe, freundliche Menschen und Top-Wetter. Perfekt für Strände, La Jolla, Coronado und Craft-Beer."
+      },
+      {
+        id: "LosAngeles",
+        name: "Los Angeles",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_LosAngeles",
+        slideBase: "LosAngeles",
+        travelDates: ["05/2022", "05/2023"],
+        description:
+          "Strände, Hollywood, Griffith Observatory und Venice: Los Angeles kombiniert Urban Lifestyle mit Kalifornien-Strandfeeling."
+      },
+      {
+        id: "SFO",
+        name: "San Francisco",
+        continent: "NAmerica",
+        country: "USA",
+        logoBaseName: "logo_SFO",
+        slideBase: "SFO",
+        travelDates: ["05/2022"],
+        description:
+          "Golden Gate Bridge, Cable Cars und steile Straßen: San Francisco bietet Charme, Food-Szene und Ausflüge nach Sausalito oder Alcatraz."
+      },
+
+      // --- Europe --- (PNGs direkt in /Europe/)
+      // 2025
+      {
+        id: "Bratislava",
+        name: "Bratislava",
+        continent: "Europe",
+        country: "Slovakia",
+        logoBaseName: "Logo_Bratislava",
+        slideBase: "Bratislava",
+        travelDates: ["08/2025"],
+        description:
+          "Kompakte Altstadt an der Donau, Schlossblick und gemütliche Cafés – Bratislava eignet sich perfekt für einen Kurztrip."
+      },
+      {
+        id: "Stockholm",
+        name: "Stockholm",
+        continent: "Europe",
+        country: "Sweden",
+        logoBaseName: "Logo_Stockholm",
+        slideBase: "Stockholm",
+        travelDates: ["03/2025"],
+        description:
+          "Inselstadt mit viel Wasser, Design und Gamla Stan – Stockholm ist ideal für Spaziergänge, Museen und nordisches Flair."
+      },
+      {
+        id: "London",
+        name: "London",
+        continent: "Europe",
+        country: "UK",
+        logoBaseName: "Logo_London",
+        slideBase: "London",
+        travelDates: ["01/2025"],
+        description:
+          "Metropole mit Geschichte und Moderne: Big Ben, Tower Bridge, Borough Market und unzählige Pubs & Musicals."
+      },
+
+      // 2024
+      {
+        id: "Istanbul",
+        name: "Istanbul",
+        continent: "Europe",
+        country: "Turkey",
+        logoBaseName: "Logo_Istanbul",
+        slideBase: "Istanbul",
+        travelDates: ["10/2024"],
+        description:
+          "Zwischen Europa und Asien: Moscheen, Basare und der Bosporus – Istanbul ist ein kultureller und kulinarischer Hotspot."
+      },
+      {
+        id: "Amsterdam",
+        name: "Amsterdam",
+        continent: "Europe",
+        country: "Netherlands",
+        logoBaseName: "Logo_Amsterdam",
+        slideBase: "Amsterdam",
+        travelDates: ["08/2024"],
+        description:
+          "Grachte, Fahrräder und kleine Gassen – Amsterdam eignet sich perfekt für Spaziergänge, Museumsbesuche und Café-Hopping."
+      },
+      {
+        id: "Brüssel",
+        name: "Brüssel",
+        continent: "Europe",
+        country: "Belgium",
+        logoBaseName: "Logo_Brüssel",
+        slideBase: "Brüssel",
+        slideCount: 2,  // hier nur 2 Bilder
+        travelDates: ["08/2024"],
+        description:
+          "Grand Place, Waffeln, Pommes und EU-Viertel: Brüssel kombiniert Politik, Kultur und belgische Küche."
+      },
+      {
+        id: "Köln",
+        name: "Köln",
+        continent: "Europe",
+        country: "Germany",
+        logoBaseName: "Logo_Cologne",
+        slideBase: "Köln",
+        travelDates: ["08/2024"],
+        description:
+          "Dom, Rheinpromenade und Altstadt – Köln bietet rheinische Lebensfreude und eine lebendige Kneipenszene."
+      },
+      {
+        id: "Luxemburg",
+        name: "Luxemburg",
+        continent: "Europe",
+        country: "Luxembourg",
+        logoBaseName: "Logo_Luxemburg",
+        slideBase: "Luxemburg",
+        travelDates: ["08/2024"],
+        description:
+          "Kleine Hauptstadt mit Schluchten, Brücken und internationalem Flair – ideal als Zwischenstopp auf einem Roadtrip."
+      },
+      {
+        id: "Vaduz",
+        name: "Vaduz",
+        continent: "Europe",
+        country: "Liechtenstein",
+        logoBaseName: "Logo_Vaduz",
+        slideBase: "Vaduz",
+        travelDates: ["01/2024"],
+        description:
+          "Kleine Hauptstadt mit Schlossblick, eingebettet in die Alpen – perfekt als Stopp auf einer Alpenroute."
+      },
+      {
+        id: "Zürich",
+        name: "Zürich",
+        continent: "Europe",
+        country: "Switzerland",
+        logoBaseName: "Logo_Zürich",
+        slideBase: "Zürich",
+        travelDates: ["01/2024"],
+        description:
+          "Altstadt, See und Finanzmetropole – Zürich bietet hohe Lebensqualität, Shopping und schöne Spazierwege am Wasser."
+      },
+      {
+        id: "Luzern",
+        name: "Luzern",
+        continent: "Europe",
+        country: "Switzerland",
+        logoBaseName: "Logo_Luzern",
+        slideBase: "Luzern",
+        travelDates: ["01/2024"],
+        description:
+          "Kapellbrücke, Vierwaldstättersee und umliegende Berge – Luzern ist eine der malerischsten Städte der Schweiz."
+      },
+      {
+        id: "Bern",
+        name: "Bern",
+        continent: "Europe",
+        country: "Switzerland",
+        logoBaseName: "Logo_Bern",
+        slideBase: "Bern",
+        travelDates: ["01/2024"],
+        description:
+          "Bundesstadt mit Sandstein-Altstadt und Aare-Schleife – gemütlich, charmant und ideal für Spaziergänge."
+      },
+      {
+        id: "Zermatt",
+        name: "Zermatt",
+        continent: "Europe",
+        country: "Switzerland",
+        logoBaseName: "Logo_Zermatt",
+        slideBase: "Zermatt",
+        travelDates: ["01/2024"],
+        description:
+          "Matterhorn, autofreies Dorf und Skigebiet – Zermatt ist ein Klassiker für Winter- und Bergfans."
+      },
+
+      // 2023
+      {
+        id: "Berlin",
+        name: "Berlin",
+        continent: "Europe",
+        country: "Germany",
+        logoBaseName: "Logo_Berlin",
+        slideBase: "Berlin",
+        travelDates: ["07/2023"],
+        description:
+          "Hauptstadt mit Geschichte, Streetart und Nightlife – Berlin ist vielseitig, kreativ und immer in Bewegung."
+      },
+      {
+        id: "Meran",
+        name: "Meran",
+        continent: "Europe",
+        country: "Italy",
+        logoBaseName: "Logo_Meran",
+        slideBase: "Meran",
+        travelDates: ["09/2023"],
+        description:
+          "Kurstadt in Südtirol mit Bergkulisse, Promenaden und mediterranem Flair – ideal zum Entspannen und Wandern."
+      },
+      {
+        id: "Lissabon",
+        name: "Lissabon",
+        continent: "Europe",
+        country: "Portugal",
+        logoBaseName: "Logo_Lissabon",
+        slideBase: "Lissabon",
+        travelDates: ["03/2023"],
+        description:
+          "Tram 28, Alfama, Miradouros und Pastéis de Nata – Lissabon ist hügelig, farbenfroh und perfekt für ein langes Wochenende."
+      },
+      {
+        id: "Athen",
+        name: "Athen",
+        continent: "Europe",
+        country: "Greece",
+        logoBaseName: "Logo_Athen",
+        slideBase: "Athen",
+        travelDates: ["04/2023"],
+        description:
+          "Akropolis, Antike und mediterranes Stadtleben – Athen ist perfekt für Geschichte, Streetfood und Rooftop-Blicke auf die Stadt."
+      },
+      {
+        id: "Hamburg",
+        name: "Hamburg",
+        continent: "Europe",
+        country: "Germany",
+        logoBaseName: "Logo_Hamburg",
+        slideBase: "Hamburg",
+        travelDates: ["04/2023"],
+        description:
+          "Hafen, Speicherstadt, Elbphilharmonie – Hamburg hat maritimes Flair und eine lebendige Musik- und Barszene."
+      },
+
+      // 2022
+      {
+        id: "Prag",
+        name: "Prag",
+        continent: "Europe",
+        country: "CzechRepublic",
+        logoBaseName: "Logo_Prag",
+        slideBase: "Prag",
+        travelDates: ["12/2022"],
+        description:
+          "Altstadt, Karlsbrücke und Burg – Prag ist besonders im Winter mit Lichtern und Weihnachtsmärkten sehr stimmungsvoll."
+      },
+      {
+        id: "Lyon",
+        name: "Lyon",
+        continent: "Europe",
+        country: "France",
+        logoBaseName: "Logo_Lyon",
+        slideBase: "Lyon",
+        travelDates: ["11/2022"],
+        description:
+          "Kulinarische Hauptstadt Frankreichs mit Altstadt, Hügeln und Rhône/Saône – perfekt für Foodies."
+      },
+      {
+        id: "Wachau",
+        name: "Wachau",
+        continent: "Europe",
+        country: "Austria",
+        logoBaseName: "Logo_Wachau",
+        slideBase: "Wachau",
+        travelDates: ["10/2022"],
+        description:
+          "Donautal mit Weinbergen, Stiften und kleinen Orten – ideal für Radtouren, Heurige und Herbststimmung."
+      },
+      {
+        id: "Madrid",
+        name: "Madrid",
+        continent: "Europe",
+        country: "Spain",
+        logoBaseName: "Logo_Madrid",
+        slideBase: "Madrid",
+        travelDates: ["08/2022"],
+        description:
+          "Plaza Mayor, Retiro-Park und Tapas – Madrid bietet viel Leben auf den Straßen und warmes Sommerflair."
+      },
+      {
+        id: "Barcelona",
+        name: "Barcelona",
+        continent: "Europe",
+        country: "Spain",
+        logoBaseName: "Logo_Barcelona",
+        slideBase: "Barcelona",
+        travelDates: ["08/2022"],
+        description:
+          "Sagrada Família, Strand und Ramblas – Barcelona kombiniert Stadt, Meer und Architektur von Gaudí."
+      }
+    ];
+
+    // Ziele mit Pfaden anreichern
+    const destinations = rawDestinations.map(dest => {
+      const isEurope = dest.continent === "Europe";
+
+      const logoDir = isEurope
+        ? `${LOGO_BASE}/Europe`
+        : `${LOGO_BASE}/${dest.continent}/${dest.country}`;
+
+      const slideDir = isEurope
+        ? `${SLIDE_BASE}/Europe`
+        : `${SLIDE_BASE}/${dest.continent}/${dest.country}`;
+
+      return {
+        ...dest,
+        logoBasePath: `${logoDir}/${dest.logoBaseName}`,
+        slideBasePath: `${slideDir}/${dest.slideBase}`,
+        latestDateValue: getLatestDateValue(dest.travelDates || []),
+        slideCount: dest.slideCount || 10   // Standard 10, Brüssel 2
+      };
+    });
+
+    const container = document.getElementById("octoContainer");
+
+    function createDestinationElement(dest) {
+      const item = document.createElement("div");
+      item.className = "destination";
+      item.dataset.id = dest.id;
+      item.innerHTML = `
+        <div class="octagon-wrapper">
+          <div class="octagon">
+            <img class="logo-img" alt="${dest.name} Logo" />
+          </div>
+        </div>
+        <div class="destination-name">${dest.name}</div>
+      `;
+      const img = item.querySelector(".logo-img");
+      loadImageWithFallback(img, dest.logoBasePath);
+      return item;
+    }
+
+    // Nach neuestem Datum sortieren (absteigend)
+    const datedDestinations = destinations.filter(d => d.latestDateValue > 0);
+    datedDestinations.sort((a, b) => b.latestDateValue - a.latestDateValue);
+
+    // Jahres-Gruppierung
+    const groupedByYear = {};
+    datedDestinations.forEach(dest => {
+      const year = getYearFromDateStr(
+        dest.travelDates[dest.travelDates.length - 1]
+      ) || Math.floor(dest.latestDateValue / 100);
+      if (!groupedByYear[year]) groupedByYear[year] = [];
+      groupedByYear[year].push(dest);
+    });
+
+    const years = Object.keys(groupedByYear)
+      .map(Number)
+      .sort((a, b) => b - a); // neuestes Jahr zuerst
+
+    // Rendern der Jahres-Sektionen
+    years.forEach(year => {
+      const section = document.createElement("section");
+      section.className = "year-section";
+
+      const heading = document.createElement("h2");
+      heading.className = "year-heading";
+      heading.textContent = year;
+      section.appendChild(heading);
+
+      const grid = document.createElement("div");
+      grid.className = "octo-grid";
+
+      groupedByYear[year].forEach(dest => {
+        grid.appendChild(createDestinationElement(dest));
+      });
+
+      section.appendChild(grid);
+      container.appendChild(section);
+    });
+
+    // --- Modal Logik (Hauptreisen) ---
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalClose = document.getElementById("modalClose");
+    const modalCityLabel = document.getElementById("modalCityLabel");
+    const modalCityName = document.getElementById("modalCityName");
+    const modalTravelDates = document.getElementById("modalTravelDates");
+    const modalDescription = document.getElementById("modalDescription");
+    const modalSlideImage = document.getElementById("modalSlideImage");
+    const slideIndicator = document.getElementById("slideIndicator");
+    const prevSlideBtn = document.getElementById("prevSlide");
+    const nextSlideBtn = document.getElementById("nextSlide");
+
+    const starContainer = document.getElementById("starContainer");
+    const ratingOutput = document.getElementById("ratingOutput");
+
+    let currentDestination = null;
+    let currentSlideIndex = 0;
+    let slideInterval = null;
+    const ratingsByDest = {};
+
+    function updateSlide() {
+      if (!currentDestination) return;
+
+      const total = currentDestination.slideCount || 10;
+      const base = `${currentDestination.slideBasePath}_${currentSlideIndex + 1}`;
+
+      modalSlideImage.onerror = null;
+      modalSlideImage.onerror = () => {
+        currentSlideIndex = 0;
+        const fallbackBase = `${currentDestination.slideBasePath}_1`;
+        loadImageWithFallback(modalSlideImage, fallbackBase);
+        slideIndicator.textContent = `Bild 1 von ${total}`;
+      };
+
+      loadImageWithFallback(modalSlideImage, base);
+      slideIndicator.textContent = `Bild ${currentSlideIndex + 1} von ${total}`;
+    }
+
+    function changeSlide(step) {
+      if (!currentDestination) return;
+      const total = currentDestination.slideCount || 10;
+
+      currentSlideIndex = (currentSlideIndex + step + total) % total;
+      updateSlide();
+    }
+
+    function openModal(destId) {
+      currentDestination = destinations.find(d => d.id === destId);
+      if (!currentDestination) return;
+
+      currentSlideIndex = 0;
+      updateSlide();
+
+      modalCityLabel.textContent = "Reiseempfehlung für";
+      modalCityName.textContent = currentDestination.name;
+
+      if (currentDestination.travelDates && currentDestination.travelDates.length) {
+        modalTravelDates.textContent =
+          "Reisezeit(en): " + currentDestination.travelDates.join(", ");
+      } else {
+        modalTravelDates.textContent = "Reisezeit(en): –";
+      }
+
+      modalDescription.textContent = currentDestination.description || "";
+
+      const initialRating = ratingsByDest[destId] || 0;
+      updateStars(initialRating, false);
+
+      modalBackdrop.classList.add("active");
+
+      clearInterval(slideInterval);
+      slideInterval = setInterval(() => {
+        changeSlide(1);
+      }, 4500);
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove("active");
+      clearInterval(slideInterval);
+    }
+
+    // Events für Grid-Items (Event Delegation)
+    container.addEventListener("click", (e) => {
+      const destElem = e.target.closest(".destination");
+      if (!destElem) return;
+      const id = destElem.dataset.id;
+      openModal(id);
+    });
+
+    // Modal-Events
+    modalClose.addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) {
+        closeModal();
+      }
+    });
+
+    prevSlideBtn.addEventListener("click", () => {
+      changeSlide(-1);
+    });
+
+    nextSlideBtn.addEventListener("click", () => {
+      changeSlide(1);
+    });
+
+    // --- Sterne-Bewertung ---
+    function updateStars(value, showText = true) {
+      const stars = starContainer.querySelectorAll(".star");
+      stars.forEach(star => {
+        const starValue = parseInt(star.dataset.value, 10);
+        star.classList.toggle("filled", starValue <= value);
+      });
+
+      if (showText) {
+        if (value === 0) {
+          ratingOutput.textContent = "Noch keine Bewertung abgegeben.";
+        } else {
+          ratingOutput.textContent = `Du hast ${value} von 5 Sternen vergeben.`;
+        }
+      }
+    }
+
+    starContainer.addEventListener("click", (e) => {
+      const star = e.target.closest(".star");
+      if (!star || !currentDestination) return;
+      const value = parseInt(star.dataset.value, 10) || 0;
+      ratingsByDest[currentDestination.id] = value;
+      updateStars(value, true);
+    });
+
+    starContainer.addEventListener("mouseover", (e) => {
+      const star = e.target.closest(".star");
+      if (!star) return;
+      const value = parseInt(star.dataset.value, 10) || 0;
+      updateStars(value, false);
+    });
+
+    starContainer.addEventListener("mouseout", () => {
+      if (!currentDestination) {
+        updateStars(0, false);
+        return;
+      }
+      const value = ratingsByDest[currentDestination.id] || 0;
+      updateStars(value, false);
+    });
+
+    // -------------------------------------------------------------------
+    // Weitere Pläne – Daten & Modal
+    // -------------------------------------------------------------------
+
+    const plannedTrips = [
+      {
+        id: "BuenosAires",
+        name: "Buenos Aires",
+        status: "Fix geplant",
+        dateLabel: "März 2026",
+        facts:
+          "Großstadt-Feeling im südamerikanischen Frühherbst – Tango, Kulinarik und Startpunkt für das Patagonien-Abenteuer.",
+        logoBasePath: `${LOGO_BASE}/SAmerica/Logo_BuenosAires`
+      },
+      {
+        id: "Ushuaia",
+        name: "Ushuaia",
+        status: "Fix geplant",
+        dateLabel: "März 2026",
+        facts:
+          "Das Ende der Welt: Ausgangspunkt für Antarktis-Expedition und Erkundung von Feuerland.",
+        logoBasePath: `${LOGO_BASE}/SAmerica/Logo_Ushuaia`
+      },
+      {
+        id: "Antarctica",
+        name: "Antarktis",
+        status: "Fix geplant",
+        dateLabel: "März/April 2026",
+        facts:
+          "Spezielles Reiseerlebnis: ca. 10 Tage auf einem Forschungsschiff von Ushuaia über die Drake-Passage zur antarktischen Halbinsel. Zwei Landgänge pro Tag mit Wissenschaftler:innen und anderen Begeisterten – unbedingt das zukünftige Reiseerlebnis ansehen!",
+        logoBasePath: `${LOGO_BASE}/Antarctica/Logo_Antarktis`
+      },
+      {
+        id: "ChileSouth",
+        name: "Chile (Süden)",
+        status: "Fix geplant",
+        dateLabel: "März 2026",
+        facts:
+          "Geplant nahe Feuerland/Argentinien – spektakuläre Landschaften zwischen Anden, Fjorden und Pazifik.",
+        logoBasePath: `${LOGO_BASE}/SAmerica/Logo_Chile`
+      },
+      {
+        id: "DenmarkMalmo",
+        name: "Dänemark & Malmö",
+        status: "In Planung",
+        dateLabel: "Februar (geplant)",
+        facts:
+          "Mit dem Auto nach Kopenhagen und weiter über die Öresundbrücke nach Malmö – Skandi-Kurztrip mit Winterstimmung.",
+        logoBasePath: `${LOGO_BASE}/Europe/Logo_Kopenhagen_Malmo`
+      },
+      {
+        id: "Budapest",
+        name: "Budapest",
+        status: "Wunschprojekt",
+        dateLabel: "Noch offen",
+        facts:
+          "Thermalbäder, Donaupanorama und Ruinenbars – steht als Citytrip-Wunsch auf der Liste.",
+        logoBasePath: `${LOGO_BASE}/Europe/Logo_Budapest`
+      },
+      {
+        id: "Cairo",
+        name: "Kairo",
+        status: "Wunschprojekt",
+        dateLabel: "Noch offen",
+        facts:
+          "Ägypten mit Pyramiden von Gizeh, Nil und Wüstenfeeling – langfristiger Traumtrip.",
+        logoBasePath: `${LOGO_BASE}/Africa/Logo_Kairo`
+      }
+    ];
+
+    const plansBackdrop = document.getElementById("plansBackdrop");
+    const plansClose = document.getElementById("plansClose");
+    const openPlansBtn = document.getElementById("openPlansBtn");
+    const plansGrid = document.getElementById("plansGrid");
+
+    function createPlanElement(plan) {
+      const card = document.createElement("div");
+      card.className = "plan-card";
+      card.innerHTML = `
+        <div class="octagon-wrapper">
+          <div class="octagon">
+            <img class="logo-img" alt="${plan.name} Logo" />
+          </div>
+        </div>
+        <div class="plan-name">${plan.name}</div>
+        <div class="plan-status">${plan.status} – ${plan.dateLabel}</div>
+        <div class="plan-facts">${plan.facts}</div>
+      `;
+      const img = card.querySelector(".logo-img");
+      loadImageWithFallback(img, plan.logoBasePath);
+      return card;
+    }
+
+    plannedTrips.forEach(plan => {
+      plansGrid.appendChild(createPlanElement(plan));
+    });
+
+    function openPlansModal() {
+      plansBackdrop.classList.add("active");
+    }
+
+    function closePlansModal() {
+      plansBackdrop.classList.remove("active");
+    }
+
+    openPlansBtn.addEventListener("click", openPlansModal);
+    plansClose.addEventListener("click", closePlansModal);
+    plansBackdrop.addEventListener("click", (e) => {
+      if (e.target === plansBackdrop) {
+        closePlansModal();
+      }
+    });
+  </script>
 </body>
 </html>
