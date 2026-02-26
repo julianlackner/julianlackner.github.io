@@ -1,1 +1,30 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <!-- wichtig für Mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Jungscharlager 2026 – Detektivspiel</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Portrait-Blocker für Mobile -->
+  <div id="rotateOverlay" class="rotateOverlay" aria-hidden="true">
+    <div class="rotateCard">
+      <div class="rotateIcon">📱↻</div>
+      <div class="rotateTitle">Bitte Gerät drehen</div>
+      <div class="rotateText">Dieses Spiel funktioniert am Smartphone/iPad nur im Querformat.</div>
+    </div>
+  </div>
 
+  <div id="app"></div>
+
+  <!-- Map Button (unten rechts) -->
+  <button id="mapFab" class="fab" title="Karte" aria-label="Karte">🗺️</button>
+
+  <!-- Modal Root -->
+  <div id="modalRoot"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
