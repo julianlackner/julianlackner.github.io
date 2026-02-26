@@ -1,0 +1,435 @@
+:root{
+  --bg:#0b1020;
+  --panel:#121a33;
+  --line:#22305c;
+  --text:#eef;
+  --muted:#aab;
+  --accent:#2a5cff;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:system-ui, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+#app{ min-height: 100vh; }
+
+.wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+.card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:14px; }
+h1,h2{ margin:0 0 10px; }
+.small{ font-size:13px; color:var(--muted); }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 12px; border-radius:12px;
+  border:1px solid #2a3a6e; background:#0f1730; color:var(--text);
+  cursor:pointer; text-decoration:none;
+}
+.btn.primary{ background:var(--accent); border-color:var(--accent); }
+
+.row{ display:flex; gap:16px; flex-wrap:wrap; }
+
+.input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #2a3a6e;
+  background:#0f1730;
+  color:var(--text);
+  font-size:16px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap:12px;
+}
+
+.avatar{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#0f1730;
+  padding:10px;
+  cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.avatar.selected{ outline:2px solid rgba(42,92,255,.7); }
+.avatar img{ width:72px; height:72px; object-fit:contain; }
+
+/* =========================
+   Scene + Canvas
+   ========================= */
+.sceneWrap{
+  position:relative;
+  width:100%;
+  max-width: 1100px;
+  margin:0 auto;
+  padding:16px;
+}
+
+canvas{
+  width:100%;
+  height:auto;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:#0f1730;
+  display:block;
+
+  /* Touch: kein Scroll/Zoom auf Canvas */
+  touch-action: none;
+}
+
+/* HUD top */
+.hud{
+  position:absolute;
+  left:26px; right:26px; top:26px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  pointer-events:none;
+}
+.pill{
+  pointer-events:auto;
+  display:inline-flex; gap:10px; align-items:center;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(15,23,48,.88);
+  backdrop-filter: blur(6px);
+}
+.pill img{ width:26px; height:26px; }
+
+/* FAB map button bottom right */
+.fab{
+  position:fixed;
+  right:16px; bottom:16px;
+  width:56px; height:56px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(15,23,48,.92);
+  color:var(--text);
+  font-size:22px;
+  cursor:pointer;
+  display:none; /* wird erst im Spiel angezeigt */
+}
+
+/* =========================
+   Map Modal (falls genutzt)
+   ========================= */
+.modalBack{
+  position:fixed; inset:0;
+  background: rgba(0,0,0,.55);
+  display:none;
+  align-items:center; justify-content:center;
+  padding:16px;
+}
+.modalBack.show{ display:flex; }
+
+.modal{ width:min(900px, 100%); }
+
+.mapGrid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:12px;
+}
+.mapThumb{
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:#0f1730;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px;
+}
+.mapThumb:hover{ background: rgba(42,92,255,.12); }
+
+/* Avatar sprite-sheet thumbnail */
+.thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.15);
+  background-repeat: no-repeat;
+  background-size: 192px 256px; /* 3*64 x 4*64 */
+  background-position: 0px 0px; /* Frame 0, Reihe 0 */
+}
+.thumb.small {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background-repeat: no-repeat;
+  background-size: 192px 256px;
+  background-position: 0px 0px;
+}
+
+/* Hotspots – standard unsichtbar */
+.mapHotspot:hover{
+  outline: 2px dashed rgba(42,92,255,.65);
+  background: rgba(42,92,255,.10);
+}
+
+/* =========================
+   Mobile / Device rules
+   ========================= */
+body[data-device="mobile"] #app{ min-height: 100svh; }
+
+body[data-device="mobile"] .sceneWrap{
+  max-width: none;
+  padding: 0;
+  margin: 0;
+
+  /* Canvas mittig und komplett sichtbar */
+  height: 100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+body[data-device="mobile"] canvas{
+  width: auto;
+  height: auto;
+  max-width: 100vw;
+  max-height: 100svh;
+  border-radius: 0;
+  border: 0;
+  display:block;
+}
+
+/* HUD bleibt oben */
+body[data-device="mobile"] .hud{
+  position: fixed;
+  left: 10px; right: 10px; top: 10px;
+}
+
+/* =========================
+   Rotate Overlay (Portrait-Sperre)
+   ========================= */
+.rotateOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.75);
+}
+.rotateOverlay.show{ display: flex; }
+
+.rotateCard{
+  width: min(520px, 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(15,23,48,0.92);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+}
+.rotateIcon{ font-size: 44px; margin-bottom: 10px; }
+.rotateTitle{ font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.rotateText{ font-size: 14px; color: rgba(255,255,255,0.8); }
+
+/* =========================
+   Action / Info Modal
+   ========================= */
+.actionBack{
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.60);
+  padding: 12px;
+  pointer-events: auto;
+}
+.actionBack.show{ display:flex; }
+
+.actionModal{
+  position: relative;
+  width: min(920px, 100%);
+  max-height: min(86vh, 700px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(15,23,48,.96);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  pointer-events: auto;
+}
+
+/* Header IMMER über allem */
+.actionHeader{
+  position: relative;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  pointer-events: auto;
+}
+
+.actionClose{
+  position: relative;
+  z-index: 60;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+  pointer-events: auto;
+}
+
+.actionBody{
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  min-height: 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.actionSlide{
+  width: 100%;
+  height: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 12px;
+  background: rgba(0,0,0,.15);
+  pointer-events: none; /* Bild soll keine Klicks fressen */
+}
+
+/* Desktop Footer Buttons */
+.actionFooter{
+  position: relative;
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  pointer-events: auto;
+}
+
+.actionBtn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.actionBtn.primary{
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* =========================
+   Mobile: Pfeile statt Buttons
+   ========================= */
+@media (max-width: 768px){
+  .actionBack{ padding: 10px; }
+
+  .actionModal{
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 14px;
+  }
+
+  .actionHeader{ padding: 10px 12px; }
+
+  /* Footer weg */
+  .actionFooter{ display: none; }
+
+  .actionSlide{ max-height: 78vh; }
+
+  /* Pfeilflächen */
+  .actionArrow{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 18%;
+    min-width: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    user-select: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    z-index: 30; /* unter Header, über Bild */
+    pointer-events: auto;
+  }
+
+  .actionArrow.left{ left: 0; }
+  .actionArrow.right{ right: 0; }
+
+  .actionArrow::before{
+    content: "";
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(15,23,48,.78);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  .actionArrow.left::after,
+  .actionArrow.right::after{
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-right: 3px solid rgba(255,255,255,.85);
+    border-bottom: 3px solid rgba(255,255,255,.85);
+  }
+  .actionArrow.left::after{ transform: rotate(135deg); }
+  .actionArrow.right::after{ transform: rotate(-45deg); }
+
+  .actionArrow.disabled{
+    opacity: .35;
+    pointer-events: none;
+  }
+
+  /* Fertig Button im Body */
+  .actionDone{
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--accent);
+    color: var(--text);
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    z-index: 40;
+    pointer-events: auto;
+  }
+  .actionDone.show{ display: inline-flex; }
+}
+
+/* Landscape tuning */
+@media (max-width: 900px) and (orientation: landscape){
+  .actionModal{ max-height: 90vh; }
+  .actionSlide{ max-height: 82vh; }
+}

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codeblock Generator</title>
+  <style>
+    :root { --bg:#0b0f19; --card:#121a2a; --muted:#9fb0d0; --text:#e8eeff; --accent:#5aa7ff; --line:#223150; }
+    *{ box-sizing:border-box; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body{ margin:0; background:linear-gradient(180deg,#070a12, #0b0f19); color:var(--text); }
+    .wrap{ max-width:980px; margin:28px auto; padding:0 16px; }
+    h1{ font-size:22px; margin:0 0 12px; }
+    .grid{ display:grid; grid-template-columns: 1.1fr 0.9fr; gap:16px; }
+    @media (max-width: 920px){ .grid{ grid-template-columns:1fr; } }
+    .card{
+      background:rgba(18,26,42,.9);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+      overflow:hidden;
+    }
+    .cardHeader{ padding:14px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
+    .cardHeader small{ color:var(--muted); }
+    .cardBody{ padding:16px; }
+    .stepTitle{ font-size:14px; color:var(--muted); margin:0 0 8px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    input, select, textarea{
+      width:100%;
+      background:#0c1324;
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 10px;
+      border-radius:10px;
+      outline:none;
+    }
+    textarea{ min-height:120px; resize:vertical; }
+    .field{ flex:1 1 240px; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button{
+      background: #0c1324;
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    button.primary{ background: linear-gradient(135deg, #2f7cff, #5aa7ff); border:0; color:#071022; font-weight:700; }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+    .pill{
+      font-size:12px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted);
+    }
+    pre{
+      margin:0;
+      background:#070b15;
+      border-top:1px solid var(--line);
+      padding:14px 16px;
+      overflow:auto;
+      font-size:12.5px;
+      line-height:1.45;
+      white-space:pre;
+    }
+    .hint{ color:var(--muted); font-size:12px; margin-top:8px; }
+    .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:#0c1324; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Reise-Codeblock Generator</h1>
+
+    <div class="grid">
+      <!-- Wizard -->
+      <div class="card" id="wizardCard">
+        <div class="cardHeader">
+          <div>
+            <div class="pill" id="stepPill">Schritt 1 / 8</div>
+            <small id="stepLabel" style="display:block; margin-top:6px;">Basisdaten</small>
+          </div>
+          <small>Tipp: <span class="kbd">Enter</span> → Weiter</small>
+        </div>
+
+        <div class="cardBody">
+          <!-- Step 1 -->
+          <section class="step" data-step="1">
+            <p class="stepTitle">Basisdaten</p>
+            <div class="row">
+              <div class="field">
+                <label for="id">id</label>
+                <input id="id" placeholder='z.B. "Copenhagen"' />
+              </div>
+              <div class="field">
+                <label for="name">name</label>
+                <input id="name" placeholder='z.B. "Copenhagen"' />
+              </div>
+            </div>
+            <div class="hint">id und name sind oft identisch.</div>
+          </section>
+
+          <!-- Step 2 -->
+          <section class="step" data-step="2" hidden>
+            <p class="stepTitle">Ort</p>
+            <div class="row">
+              <div class="field">
+                <label for="continent">continent</label>
+                <select id="continent">
+                  <option value="Europe">Europe</option>
+                  <option value="Asia">Asia</option>
+                  <option value="Africa">Africa</option>
+                  <option value="North America">North America</option>
+                  <option value="South America">South America</option>
+                  <option value="Oceania">Oceania</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="country">country</label>
+                <input id="country" placeholder='z.B. "Denmark"' />
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 3 -->
+          <section class="step" data-step="3" hidden>
+            <p class="stepTitle">Assets</p>
+            <div class="row">
+              <div class="field">
+                <label for="logoBaseName">logoBaseName</label>
+                <input id="logoBaseName" placeholder='z.B. "Logo_Copenhagen"' />
+              </div>
+              <div class="field">
+                <label for="slideBase">slideBase</label>
+                <input id="slideBase" placeholder='z.B. "Copenhagen"' />
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 4 -->
+          <section class="step" data-step="4" hidden>
+            <p class="stepTitle">Reisedaten</p>
+            <label for="travelDates">travelDates (kommagetrennt)</label>
+            <input id="travelDates" placeholder='z.B. 02/2026, 03/2026' />
+            <div class="hint">Wird zu <span class="kbd">["02/2026","03/2026"]</span>.</div>
+          </section>
+
+          <!-- Step 5 -->
+          <section class="step" data-step="5" hidden>
+            <p class="stepTitle">Beschreibung</p>
+            <label for="description">description</label>
+            <textarea id="description" placeholder="Dein Text… (Zeilenumbrüche bleiben erhalten)"></textarea>
+            <div class="hint">Wird als mehrzeiliger String mit <span class="kbd">description:</span> ausgegeben.</div>
+          </section>
+
+          <!-- Step 6 -->
+          <section class="step" data-step="6" hidden>
+            <p class="stepTitle">Vorschau (optional anpassen)</p>
+            <div class="row">
+              <div class="field">
+                <label for="autoFillLike">Auto-Defaults</label>
+                <select id="autoFillLike">
+                  <option value="on">Hilfs-Defaults aktiv</option>
+                  <option value="off">Keine Defaults</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Hinweis</label>
+                <div class="hint">Wenn logo/slide leer sind, können wir sie aus <span class="kbd">name</span> ableiten.</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 7 -->
+          <section class="step" data-step="7" hidden>
+            <p class="stepTitle">Generieren</p>
+            <div class="hint">Klicke „Generieren“, um den finalen Codeblock zu erzeugen.</div>
+          </section>
+
+          <!-- Navigation -->
+          <div class="btnRow">
+            <button id="backBtn">Zurück</button>
+            <button id="nextBtn" class="primary">Weiter</button>
+            <button id="genBtn" class="primary" hidden>Generieren</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <div class="pill">Output</div>
+            <small style="display:block; margin-top:6px;">Der fertige Codeblock erscheint hier</small>
+          </div>
+          <div class="btnRow" style="margin:0;">
+            <button id="copyBtn">Kopieren</button>
+          </div>
+        </div>
+        <pre id="output">// Noch nichts generiert.</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const steps = Array.from(document.querySelectorAll(".step"));
+    const stepPill = document.getElementById("stepPill");
+    const stepLabel = document.getElementById("stepLabel");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const genBtn  = document.getElementById("genBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const output = document.getElementById("output");
+
+    const fields = {
+      id: document.getElementById("id"),
+      name: document.getElementById("name"),
+      continent: document.getElementById("continent"),
+      country: document.getElementById("country"),
+      logoBaseName: document.getElementById("logoBaseName"),
+      slideBase: document.getElementById("slideBase"),
+      travelDates: document.getElementById("travelDates"),
+      description: document.getElementById("description"),
+      autoFillLike: document.getElementById("autoFillLike"),
+    };
+
+    const labelsByStep = {
+      1: "Basisdaten",
+      2: "Ort",
+      3: "Assets",
+      4: "Reisedaten",
+      5: "Beschreibung",
+      6: "Vorschau",
+      7: "Generieren",
+    };
+
+    let currentStep = 1;
+
+    function showStep(n){
+      currentStep = n;
+      steps.forEach(s => s.hidden = (Number(s.dataset.step) !== n));
+      stepPill.textContent = `Schritt ${n} / 7`;
+      stepLabel.textContent = labelsByStep[n] || "";
+
+      backBtn.disabled = (n === 1);
+      nextBtn.hidden = (n === 7);
+      genBtn.hidden  = (n !== 7);
+
+      // Fokus auf erstes Eingabefeld im Step
+      const firstInput = steps.find(s => Number(s.dataset.step) === n)
+        .querySelector("input, select, textarea");
+      if(firstInput) firstInput.focus();
+    }
+
+    function trimOrEmpty(v){ return (v ?? "").toString().trim(); }
+
+    function escapeForDoubleQuotedJS(str){
+      // Für "..." Strings mit \n Darstellung
+      return str
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"')
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n");
+    }
+
+    function parseTravelDates(raw){
+      const parts = raw.split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+      return parts;
+    }
+
+    function deriveDefaultsIfEnabled(data){
+      const enabled = (fields.autoFillLike.value === "on");
+      if(!enabled) return data;
+
+      const name = data.name || "";
+      if(!data.logoBaseName && name) data.logoBaseName = `Logo_${name}`;
+      if(!data.slideBase && name) data.slideBase = name;
+      if(!data.id && name) data.id = name;
+      return data;
+    }
+
+    function validateStep(n){
+      // Minimal sinnvolle Validierung (du kannst das erweitern)
+      if(n === 1){
+        if(!trimOrEmpty(fields.name.value)) { alert("Bitte name ausfüllen."); return false; }
+        if(!trimOrEmpty(fields.id.value)) { fields.id.value = trimOrEmpty(fields.name.value); }
+      }
+      if(n === 2){
+        if(!trimOrEmpty(fields.country.value)) { alert("Bitte country ausfüllen."); return false; }
+      }
+      return true;
+    }
+
+    function buildCodeBlock(){
+      const data = deriveDefaultsIfEnabled({
+        id: trimOrEmpty(fields.id.value),
+        name: trimOrEmpty(fields.name.value),
+        continent: trimOrEmpty(fields.continent.value),
+        country: trimOrEmpty(fields.country.value),
+        logoBaseName: trimOrEmpty(fields.logoBaseName.value),
+        slideBase: trimOrEmpty(fields.slideBase.value),
+        travelDates: parseTravelDates(trimOrEmpty(fields.travelDates.value)),
+        description: fields.description.value ?? "",
+      });
+
+      const dates = data.travelDates.map(d => `"${escapeForDoubleQuotedJS(d)}"`).join(", ");
+      const desc = escapeForDoubleQuotedJS(data.description);
+
+      // Format wie dein Beispiel: description: " ... "
+      return `{
+  id: "${escapeForDoubleQuotedJS(data.id)}",
+  name: "${escapeForDoubleQuotedJS(data.name)}",
+  continent: "${escapeForDoubleQuotedJS(data.continent)}",
+  country: "${escapeForDoubleQuotedJS(data.country)}",
+  logoBaseName: "${escapeForDoubleQuotedJS(data.logoBaseName)}",
+  slideBase: "${escapeForDoubleQuotedJS(data.slideBase)}",
+  travelDates: [${dates}],
+  description:
+    "${desc.replace(/\n/g, '\\n')}"
+},`;
+    }
+
+    // Buttons
+    backBtn.addEventListener("click", () => {
+      showStep(Math.max(1, currentStep - 1));
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if(!validateStep(currentStep)) return;
+      showStep(Math.min(7, currentStep + 1));
+    });
+
+    genBtn.addEventListener("click", () => {
+      // letzte Step-Validierung (falls du willst)
+      const code = buildCodeBlock();
+      output.textContent = code;
+    });
+
+    resetBtn.addEventListener("click", () => {
+      Object.values(fields).forEach(el => {
+        if(!el) return;
+        if(el.tagName === "SELECT") return;
+        el.value = "";
+      });
+      fields.continent.value = "Europe";
+      fields.autoFillLike.value = "on";
+      output.textContent = "// Noch nichts generiert.";
+      showStep(1);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(output.textContent);
+        copyBtn.textContent = "Kopiert!";
+        setTimeout(()=> copyBtn.textContent = "Kopieren", 900);
+      }catch(e){
+        alert("Kopieren nicht möglich. Markiere den Text manuell und kopiere ihn.");
+      }
+    });
+
+    // Enter → weiter (außer im Textarea)
+    document.addEventListener("keydown", (e) => {
+      if(e.key !== "Enter") return;
+      const active = document.activeElement;
+      if(active && active.tagName === "TEXTAREA") return;
+      if(currentStep < 7){
+        e.preventDefault();
+        nextBtn.click();
+      }
+    });
+
+    // Start
+    showStep(1);
+  </script>
+</body>
+</html>

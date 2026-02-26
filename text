@@ -1,0 +1,84 @@
+
+
+
+Code für unterseite!!:
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+
+</head>
+<body class="Unterseiten">
+
+
+    <!--Zurückfunktion-->
+    <a href="../index.html">Zurück</a>
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="../style.css">
+    </head>
+    <body class="Unterseiten">
+
+
+
+    <!--Überschrift-->
+      <h1 id="Ueberschriftunterseite">X</h1>
+
+    <!--Absätze-->
+                  <br><br><br>
+    <!--Linie-->
+                  <hr>
+    <!--Aufzählung-->
+                    <ul >
+                  	<li id="Aufzaehlung">Land: X</li>
+                  	<li id="Aufzaehlung">Wann: X</li>
+                	  </ul>
+
+    <!--Unterüberschrift-->
+                    <p id="Unterueberschrift"> Sehenswürdigkeiten in X:</p>
+                    <br><br>
+                    <ul >
+
+                      <li id="Aufzaehlung">X</li>
+                      <li id="Aufzaehlung">X</li>
+                      <li id="Aufzaehlung">X</li>
+
+                      <li id="Aufzaehlung">X</li>
+                      <li id="Aufzaehlung">X</li>
+                      <li id="Aufzaehlung">X</li>
+
+                      <li id="Aufzaehlung">X</li>
+                      <li id="Aufzaehlung">X</li>
+                      <li id="Aufzaehlung">X</li>
+                      </ul>
+
+    <!--Linie-->
+                      <hr>
+
+    <!--9 Fotos vom Unterordner der spez. Stadt-->
+                      <img class="Fotos" src="../image/X/X.jpg">
+                      <img class="Fotos" src="../image/X/X.jpg">
+                      <img class="Fotos" src="../image/X/X.jpg">
+
+                      <img class="Fotos" src="../image/X/X.jpg">
+                      <img class="Fotos" src="../image/X/X.jpg">
+                      <img class="Fotos" src="../image/X/X.jpg">
+
+                      <img class="Fotos" src="../image/X/X.jpg">
+                      <img class="Fotos" src="../image/X/X.jpg">
+                      <img class="Fotos" src="../image/X/X.jpg">
+
+    </body>
+    </html>
+</body>
+</html>
